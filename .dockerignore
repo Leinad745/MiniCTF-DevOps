@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+tests/
+.git/
+.gitignore
+*.md
+*.docx
+*.pdf
+.env

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini CTF</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --panel: #0a0a0a;
+      --border: #2a2a2a;
+      --purple: #a855f7;
+      --purple-dark: #7c3aed;
+      --purple-dim: #4c1d95;
+      --text: #e5e5e5;
+      --muted: #8a8a8a;
+      --ok: #22c55e;
+      --err: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Courier New", monospace;
+      padding: 32px 16px;
+      min-height: 100vh;
+    }
+    header {
+      max-width: 1080px;
+      margin: 0 auto 28px;
+      border: 1px solid var(--purple-dim);
+      padding: 20px;
+      background: var(--panel);
+    }
+    header h1 {
+      color: var(--purple);
+      font-size: 24px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    header p { color: var(--muted); margin-top: 6px; font-size: 13px; }
+    .grid {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    .card-head {
+      background: var(--purple-dark);
+      color: #fff;
+      padding: 10px 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      font-size: 11px;
+      background: #000;
+      color: var(--purple);
+      padding: 2px 6px;
+      border: 1px solid var(--purple);
+    }
+    .card-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .desc { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .desc code { color: var(--purple); background: #000; padding: 1px 4px; }
+    label { font-size: 12px; color: var(--purple); text-transform: uppercase; }
+    input, textarea {
+      width: 100%;
+      background: #000;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      border-radius: 0;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--purple); }
+    textarea { resize: vertical; min-height: 54px; }
+    button {
+      background: var(--purple);
+      color: #000;
+      border: none;
+      padding: 9px;
+      font-family: inherit;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    button:hover { background: var(--purple-dark); color: #fff; }
+    .result {
+      border: 1px solid var(--border);
+      background: #000;
+      padding: 10px;
+      font-size: 12px;
+      min-height: 40px;
+      word-break: break-word;
+    }
+    .result.ok { border-color: var(--ok); }
+    .result.err { border-color: var(--err); }
+    .flag { color: var(--ok); font-weight: bold; }
+    .label-ok { color: var(--ok); }
+    .label-err { color: var(--err); }
+    footer {
+      max-width: 1080px;
+      margin: 28px auto 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>&gt; Mini Plataforma CTF</h1>
+    <p>Resuelve los 3 desafios y captura cada FLAG{}</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <div class="card-head"><span>01 · Inyeccion SQL</span><span class="badge">LOGIN</span></div>
+      <div class="card-body">
+        <p class="desc">
+          Login inseguro. Evade la autenticacion para entrar como <code>admin</code>
+          y recuperar su flag. Pista: <code>' OR '1'='1' --</code>
+        </p>
+        <label for="sqli-user">Usuario</label>
+        <input id="sqli-user" placeholder="usuario" autocomplete="off" />
+        <label for="sqli-pass">Contrasena</label>
+        <input id="sqli-pass" placeholder="contrasena" autocomplete="off" />
+        <button onclick="solveSqli()">Iniciar sesion</button>
+        <div id="sqli-result" class="result">Esperando intento...</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><span>02 · SSTI</span><span class="badge">TEMPLATE</span></div>
+      <div class="card-body">
+        <p class="desc">
+          La plantilla renderiza tu entrada con Jinja2. Prueba <code>{{ 7*7 }}</code>.
+          Hay un objeto <code>config</code> con la flag. Objetivo:
+          <code>{{ config.SECRET_FLAG }}</code>
+        </p>
+        <label for="ssti-input">Plantilla</label>
+        <textarea id="ssti-input" placeholder="{{ 7*7 }}"></textarea>
+        <button onclick="solveSsti()">Renderizar</button>
+        <div id="ssti-result" class="result">Esperando intento...</div>
+      </div>
+    </section>
+
+    <!-- Desafio 3: XSS -->
+    <section class="card">
+      <div class="card-head"><span>03 · XSS reflejado</span><span class="badge">DOM</span></div>
+      <div class="card-body">
+        <p class="desc">
+          Tu entrada se refleja en el DOM sin sanitizar. Inyecta un script
+          que se ejecute. Pista: <code>&lt;img src=x onerror=alert(1)&gt;</code>
+        </p>
+        <label for="xss-input">Comentario</label>
+        <textarea id="xss-input" placeholder="<img src=x onerror=alert(1)>"></textarea>
+        <button onclick="solveXss()">Publicar</button>
+        <div id="xss-reflect" class="result">Vista previa del comentario...</div>
+        <div id="xss-result" class="result">Esperando intento...</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function post(url, body) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      return { status: res.status, data: await res.json() };
+    }
+
+    function render(elId, resp, extra) {
+      const el = document.getElementById(elId);
+      const d = resp.data;
+      el.className = "result " + (d.solved ? "ok" : (resp.status >= 400 ? "err" : ""));
+      let html = "";
+      if (d.solved) {
+        html += '<span class="label-ok">[RESUELTO]</span> FLAG capturada:<br/>';
+        html += '<span class="flag">' + escapeHtml(d.flag) + "</span>";
+      } else if (d.error) {
+        html += '<span class="label-err">[ERROR]</span> ' + escapeHtml(d.error);
+      } else {
+        html += '<span class="label-err">[SIN EXITO]</span> ' + escapeHtml(d.message || "Intentalo de nuevo.");
+      }
+      if (extra) html += extra(d);
+      el.innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return "";
+      return String(s).replace(/[&<>"']/g, c => (
+        { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+      ));
+    }
+
+    async function solveSqli() {
+      const resp = await post("/api/sqli", {
+        username: document.getElementById("sqli-user").value,
+        password: document.getElementById("sqli-pass").value,
+      });
+      render("sqli-result", resp, d => d.query
+        ? '<br/><span style="color:#8a8a8a">query: ' + escapeHtml(d.query) + "</span>"
+        : "");
+    }
+
+    async function solveSsti() {
+      const resp = await post("/api/ssti", {
+        payload: document.getElementById("ssti-input").value,
+      });
+      render("ssti-result", resp, d => d.rendered !== undefined
+        ? '<br/><span style="color:#8a8a8a">salida: ' + escapeHtml(d.rendered) + "</span>"
+        : "");
+    }
+
+    async function solveXss() {
+      const resp = await post("/api/xss", {
+        payload: document.getElementById("xss-input").value,
+      });
+      // VULNERABILIDAD INTENCIONAL: se inserta el reflejo sin sanitizar.
+      document.getElementById("xss-reflect").innerHTML =
+        "Comentario publicado: " + resp.data.reflected;
+      render("xss-result", resp);
+    }
+  </script>
+</body>
+</html>
