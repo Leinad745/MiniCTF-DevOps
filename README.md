@@ -4,7 +4,7 @@ Pequeña plataforma con 3 desafios ctfs para usarse de demostracion en la 2da pr
 
 ## Dockerfile multi-stage
 
-Imagen Docker creada a partir de una imagen de alpine linux `python:3.12-slim` usada en dos etapas:
+Imagen Docker creada a partir de una imagen de Debian `python:3.12-slim` usada en dos etapas:
 
 | Etapa | Descripcion |
 | ---- | ----------- |
@@ -18,22 +18,20 @@ Cabe destacar que esta medida no es del todo necesaria cuando se trabaja con pyt
 | Alcance | Test | Condicion |
 | ------- | ---- | --------- |
 | Servicio | `test_health_ok` | Test de health comun respondiendo a un 200 |
-| HTML | `test_index_sirve_html` | Test de index si responde con un HTML |
 | SQLi | `test_sqli_login_normal_sin_flag` | Test del desafio de sqli para determinar si un login normal no da la flag |
-| SQLi | `test_sqli_credenciales_invalidas` | Verifica que un login con contraseña incorrecta no autentica ni entrega flag |
 | SQLi | `test_sqli_inyeccion_entrega_flag` | Comprueba que el bypass `' OR '1'='1' --` recupera la fila del admin y entrega la flag |
-| SSTI | `test_ssti_evaluacion_aritmetica` | Confirma que `{{ 7*7 }}` se evalúa a `49` (hay SSTI) pero sin entregar flag |
 | SSTI | `test_ssti_extrae_flag` | Verifica que `{{ config.SECRET_FLAG }}` extrae la flag del contexto de la plantilla |
 | SSTI | `test_ssti_payload_invalido_devuelve_error` | Una plantilla mal formada devuelve error 400 sin romper el servicio |
 | XSS | `test_xss_texto_plano_no_resuelve` | Un texto plano se refleja pero no resuelve el desafío (sin flag) |
 | XSS | `test_xss_script_entrega_flag` | Un payload `<script>alert(1)</script>` es detectado y entrega la flag |
-| XSS | `test_xss_img_onerror_entrega_flag` | Un payload `<img src=x onerror=alert(1)>` también resuelve el desafío |
 
 ## Dependabot activo + Snyk con bloqueo ante fallo de seguridad
 
 Se añadieron ambas dependencias dentro del pipeline principal. A fin de obtener reportes sobre posibles problemas de seguridad en librerias externas.
 
 ### SNYK
+
+Snyk bloqueo 4 vulnerabilidades altas relacionadas al micro framework web `starlette`
 
 ```yaml
  security:
