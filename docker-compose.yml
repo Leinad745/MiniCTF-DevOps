@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    image: mini-ctf:latest
+    container_name: mini-ctf
+    ports:
+      - "8080:8080"
+    environment:
+      - CTF_DB_PATH=/app/data/ctf.db
+    volumes:
+      - ctf-data:/app/data          # persiste la base de datos SQLite
+    deploy:
+      replicas: 2
+      resources:
+        limits:                     # techo de recursos (evita que un contenedor acapare la maquina)
+          cpus: "0.50"
+          memory: 256M
+        reservations:               # minimo garantizado
+          cpus: "0.25"
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped         # se reinicia solo si el contenedor cae
+
+volumes:
+  ctf-data:

@@ -1,0 +1,6 @@
+2026-11-06 20:41:59,147997086 [main] INFO  SocketGLSPServerLauncher - The GLSP server is ready to accept new client requests on port: 46579
+2026-11-06 20:41:59,526319351 [DefaultActionDispatcher 1] INFO  DefaultActionDispatcher - Terminating DefaultActionDispatcher thread DefaultActionDispatcher 1
+2026-11-06 20:41:59,526557989 [DefaultActionDispatcher 1] INFO  DefaultActionDispatcher - Terminating DefaultActionDispatcher
+2026-11-06 20:41:59,556891711 [InnocuousThread-14] INFO  SocketGLSPServerLauncher - Starting GLSP server connection for client /127.0.0.1:49618
+2026-11-06 20:42:37,216177780 [InnocuousThread-14] INFO  SocketGLSPServerLauncher - Stopping GLSP server connection for client /127.0.0.1:49618
+2026-11-06 20:42:37,216800700 [InnocuousThread-14] INFO  DefaultGLSPServer - Shutdown GLSP Server org.eclipse.glsp.server.protocol.DefaultGLSPServer@7f2804a2
